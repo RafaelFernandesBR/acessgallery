@@ -8,7 +8,7 @@ namespace AcessGallery.Services;
 /// </summary>
 public class LocalDatabaseService
 {
-    private SQLiteAsyncConnection _database;
+    private SQLiteAsyncConnection? _database;
     private const string DbName = "PhotoDescriptions.db3";
 
     public LocalDatabaseService()
@@ -31,7 +31,28 @@ public class LocalDatabaseService
     public async Task<PhotoDescription> GetDescriptionAsync(string filePath)
     {
         await InitAsync();
-        return await _database.Table<PhotoDescription>()
+        // Tenta obter o hash do próprio arquivo e buscar pela hash
+        var hash = await FileHashService.ComputeHashAsync(filePath);
+        if (!string.IsNullOrEmpty(hash))
+        {
+            var byHash = await _database!.Table<PhotoDescription>()
+                .Where(x => x.Hash == hash)
+                .FirstOrDefaultAsync();
+
+            if (byHash != null)
+            {
+                // Atualiza o FilePath caso tenha mudado
+                if (byHash.FilePath != filePath)
+                {
+                    byHash.FilePath = filePath;
+                    await _database.UpdateAsync(byHash);
+                }
+                return byHash;
+            }
+        }
+
+        // Fallback: busca pelo caminho (compatibilidade)
+        return await _database!.Table<PhotoDescription>()
             .Where(x => x.FilePath == filePath)
             .FirstOrDefaultAsync();
     }
@@ -42,20 +63,36 @@ public class LocalDatabaseService
     public async Task SaveDescriptionAsync(PhotoDescription item)
     {
         await InitAsync();
-        
-        // Verifica se já existe
-        var existing = await GetDescriptionAsync(item.FilePath);
-        
+        // Calcula hash do próprio arquivo e usa como chave primaria estável
+        var hash = await FileHashService.ComputeHashAsync(item.FilePath ?? string.Empty);
+        item.Hash = hash;
+
+        PhotoDescription? existing = null;
+        if (!string.IsNullOrEmpty(hash))
+        {
+            existing = await _database!.Table<PhotoDescription>()
+                .Where(x => x.Hash == hash)
+                .FirstOrDefaultAsync();
+        }
+
+        // Se não encontrou por hash, tenta por caminho (compatibilidade)
+        if (existing == null)
+            existing = await _database!.Table<PhotoDescription>()
+                .Where(x => x.FilePath == item.FilePath)
+                .FirstOrDefaultAsync();
+
         if (existing != null)
         {
             existing.Description = item.Description;
             existing.LastModified = DateTime.Now;
-            await _database.UpdateAsync(existing);
+            existing.FilePath = item.FilePath;
+            existing.Hash = item.Hash;
+            await _database!.UpdateAsync(existing);
         }
         else
         {
             item.LastModified = DateTime.Now;
-            await _database.InsertAsync(item);
+            await _database!.InsertAsync(item);
         }
     }
     
@@ -68,8 +105,9 @@ public class LocalDatabaseService
         if (string.IsNullOrWhiteSpace(query))
             return new List<PhotoDescription>();
 
-        return await _database.Table<PhotoDescription>()
-            .Where(x => x.Description.ToLower().Contains(query.ToLower()))
+        var q = query.ToLower();
+        return await _database!.Table<PhotoDescription>()
+            .Where(x => x.Description != null && x.Description.ToLower().Contains(q))
             .ToListAsync();
     }
 }

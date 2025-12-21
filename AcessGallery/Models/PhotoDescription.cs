@@ -15,13 +15,20 @@ public class PhotoDescription
     /// Caminho completo do arquivo de imagem. 
     /// Indexado para buscas rápidas.
     /// </summary>
+    [Indexed]
+    public string? FilePath { get; set; }
+
+    /// <summary>
+    /// Hash do arquivo. Usado como chave estável para manter a ligação entre
+    /// imagem e descrição mesmo se o arquivo for renomeado.
+    /// </summary>
     [Indexed(Unique = true)]
-    public string FilePath { get; set; }
+    public string? Hash { get; set; }
 
     /// <summary>
     /// Texto alternativo descritivo para acessibilidade.
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     /// Data da última modificação da descrição.
