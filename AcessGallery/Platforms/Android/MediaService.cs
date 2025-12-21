@@ -40,8 +40,12 @@ public class MediaService : IMediaService
 
         // Query MediaStore
         var projection = new[] { MediaStore.Images.Media.InterfaceConsts.Data };
-        var cursor = Application.Context.ContentResolver.Query(
-            MediaStore.Images.Media.ExternalContentUri,
+        var resolver = Application.Context?.ContentResolver;
+        if (resolver == null)
+            return images;
+
+        var cursor = resolver.Query(
+            MediaStore.Images.Media.ExternalContentUri!,
             projection,
             null,
             null,
@@ -53,7 +57,8 @@ public class MediaService : IMediaService
             {
                 var columnIndex = cursor.GetColumnIndexOrThrow(MediaStore.Images.Media.InterfaceConsts.Data);
                 var path = cursor.GetString(columnIndex);
-                images.Add(path);
+                if (path != null)
+                    images.Add(path);
             }
             cursor.Close();
         }

@@ -6,9 +6,15 @@
     xmlns:local="clr-namespace:AcessGallery"
     Title="AcessGallery">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
-
+    <TabBar>
+        <Tab Title="Início" Icon="home.png">
+            <ShellContent ContentTemplate="{DataTemplate local:MainPage}" Route="MainPage" />
+        </Tab>
+        <Tab Title="Álbuns" Icon="albums.png">
+            <ShellContent ContentTemplate="{DataTemplate local:AlbumsPage}" Route="AlbumsPage" />
+        </Tab>
+        <Tab Title="Configurações" Icon="settings.png">
+            <ShellContent ContentTemplate="{DataTemplate local:SettingsPage}" Route="SettingsPage" />
+        </Tab>
+    </TabBar>
 </Shell>

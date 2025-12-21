@@ -48,6 +48,7 @@ public partial class PhotoDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
+    [Obsolete]
     private async Task SaveDescriptionAsync()
     {
         if (string.IsNullOrEmpty(PhotoPath)) return;
@@ -61,7 +62,7 @@ public partial class PhotoDetailViewModel : ObservableObject
         await _dbService.SaveDescriptionAsync(photoDesc);
         
         // Feedback acessível
-        await Shell.Current.DisplayAlert("Sucesso", "Descrição salva com sucesso", "OK");
+        await Shell.Current.DisplayAlertAsync("Sucesso", "Descrição salva com sucesso", "OK");
         
         // Poderíamos usar SemanticScreenReader para anunciar também
         SemanticScreenReader.Announce("Descrição salva com sucesso");
@@ -74,6 +75,7 @@ public partial class PhotoDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
+    [Obsolete]
     private async Task ShareAsync()
     {
         if (string.IsNullOrEmpty(PhotoPath)) return;
@@ -95,11 +97,11 @@ public partial class PhotoDetailViewModel : ObservableObject
             }
 
             // Não compartilhar caminhos que não sejam arquivos locais: informar erro ao usuário
-            await Shell.Current.DisplayAlert("Erro", "Não é possível compartilhar: caminho não é um arquivo local válido.", "OK");
+            await Shell.Current.DisplayAlertAsync("Erro", "Não é possível compartilhar: caminho não é um arquivo local válido.", "OK");
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Erro", "Não foi possível compartilhar a foto: " + ex.Message, "OK");
+            await Shell.Current.DisplayAlertAsync("Erro", "Não foi possível compartilhar a foto: " + ex.Message, "OK");
         }
     }
 }

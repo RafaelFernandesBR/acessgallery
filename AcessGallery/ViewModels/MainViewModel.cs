@@ -39,7 +39,7 @@ public partial class MainViewModel : ObservableObject
             {
                 var desc = await _dbService.GetDescriptionAsync(path);
                 var hasDesc = desc != null && !string.IsNullOrWhiteSpace(desc.Description);
-                var hint = hasDesc ? desc.Description : ExtractFileName(path);
+                var hint = desc?.Description ?? ExtractFileName(path);
 
                 Photos.Add(new PhotoItemViewModel 
                 { 
@@ -88,7 +88,7 @@ public partial class MainViewModel : ObservableObject
 
 public class PhotoItemViewModel
 {
-    public string FilePath { get; set; }
+    public string FilePath { get; set; } = string.Empty;
     public bool HasDescription { get; set; }
-    public string AccessiblityHint { get; set; }
+    public string AccessiblityHint { get; set; } = string.Empty;
 }

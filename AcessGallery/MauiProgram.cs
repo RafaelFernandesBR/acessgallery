@@ -29,10 +29,16 @@ public static class MauiProgram
         // ViewModels
         builder.Services.AddTransient<ViewModels.MainViewModel>();
         builder.Services.AddTransient<ViewModels.PhotoDetailViewModel>();
+        builder.Services.AddTransient<ViewModels.AlbumsViewModel>();
+        builder.Services.AddTransient<ViewModels.AlbumDetailViewModel>();
+        builder.Services.AddTransient<ViewModels.SettingsViewModel>();
 
         // Views
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<PhotoDetailPage>();
+        builder.Services.AddTransient<AlbumsPage>();
+        builder.Services.AddTransient<AlbumDetailPage>();
+        builder.Services.AddTransient<SettingsPage>();
 
 		return builder.Build();
 	}

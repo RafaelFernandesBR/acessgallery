@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AcessGallery.ViewModels"
+             x:Class="AcessGallery.AlbumsPage"
+             Title="Meus Álbuns"
+             SemanticProperties.Description="Tela de listagem dos seus álbuns de foto">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Novo Álbum" 
+                     Command="{Binding CreateAlbumCommand}" 
+                     Order="Primary"
+                     SemanticProperties.Hint="Criar um novo álbum de fotos"/>
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="*, Auto" Padding="10">
+        <CollectionView ItemsSource="{Binding Albums}"
+                        SelectionMode="None">
+            <CollectionView.EmptyView>
+                <Label Text="Nenhum álbum criado. Toque em 'Novo Álbum' para começar."
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" 
+                       FontSize="18"
+                       SemanticProperties.HeadingLevel="Level1"/>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,5" Padding="10" Stroke="Gray">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlbumsViewModel}}, Path=GoToAlbumDetailCommand}"
+                                      CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="{Binding Name}" 
+                                       FontSize="20" FontAttributes="Bold"
+                                       SemanticProperties.HeadingLevel="Level2"/>
+                                <Label Text="{Binding CreatedAt, StringFormat='Criado em {0:dd/MM/yyyy}'}" 
+                                       FontSize="12" TextColor="Gray"/>
+                            </StackLayout>
+                            
+                            <Button Grid.Column="1" 
+                                    Text="Excluir" 
+                                    BackgroundColor="DarkRed" 
+                                    TextColor="White"
+                                    HeightRequest="40"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlbumsViewModel}}, Path=DeleteAlbumCommand}"
+                                    CommandParameter="{Binding .}"
+                                    SemanticProperties.Description="Excluir este álbum"/>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
