@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AcessGallery.ViewModels"
+             x:Class="AcessGallery.PhotoDetailPage"
+             Title="Detalhes da Foto">
+
+
+        <Grid RowDefinitions="Auto, *">
+                <!-- Top bar com botão de compartilhar (canto esquerdo) -->
+                <Grid Grid.Row="0" Padding="10">
+                        <Button Text="Compartilhar"
+                                        Command="{Binding ShareCommand}"
+                                        HorizontalOptions="End"
+                                        VerticalOptions="Center"
+                                        AutomationProperties.Name="Compartilhar foto" />
+                </Grid>
+
+                <ScrollView Grid.Row="1">
+                        <VerticalStackLayout Spacing="20" Padding="15">
+            
+            <!-- Imagem Ampliada -->
+            <Image Source="{Binding DisplayImage}" 
+                   Aspect="AspectFit"
+                   HeightRequest="300"
+                   BackgroundColor="Black"
+                   AutomationProperties.Name="Foto selecionada ampliada"
+                   AutomationProperties.IsInAccessibleTree="True" />
+
+            <Label Text="Descrição da imagem:" 
+                   FontSize="Medium"
+                   FontAttributes="Bold"
+                   SemanticProperties.HeadingLevel="Level2" />
+
+            <!-- Campo de Edição de Descrição -->
+            <Editor Text="{Binding Description}"
+                    Placeholder="Escreva aqui uma descrição detalhada da foto..."
+                    HeightRequest="150"
+                    AutoSize="TextChanges"
+                    BackgroundColor="Transparent" 
+                    TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
+                    AutomationProperties.Name="Campo de edição da descrição"
+                    AutomationProperties.HelpText="Digite o texto alternativo para esta imagem" />
+
+            <!-- Botões de Ação -->
+            <Button Text="Salvar Descrição"
+                    Command="{Binding SaveDescriptionCommand}"
+                    FontSize="Large"
+                    FontAttributes="Bold"
+                    HeightRequest="60"
+                    BackgroundColor="{DynamicResource Primary}"
+                    TextColor="White"
+                    AutomationProperties.Name="Salvar descrição"
+                    AutomationProperties.HelpText="Salva o texto digitado como descrição desta foto" />
+
+            <Button Text="Voltar"
+                    Command="{Binding BackCommand}"
+                    FontSize="Medium"
+                    HeightRequest="50"
+                    BackgroundColor="Gray"
+                    TextColor="White"
+                    AutomationProperties.Name="Voltar para a galeria" />
+
+                        </VerticalStackLayout>
+                </ScrollView>
+        </Grid>
+
+</ContentPage>
