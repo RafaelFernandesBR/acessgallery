@@ -100,6 +100,20 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task RemovePhotoAsync(PhotoItemViewModel photo)
+    {
+        if (photo == null || CurrentAlbum == null) return;
+
+        var action = await Shell.Current.DisplayActionSheetAsync("Opções da Foto", "Cancelar", null, "Remover do Álbum");
+
+        if (action == "Remover do Álbum")
+        {
+            await _dbService.RemovePhotoFromAlbumAsync(CurrentAlbum.Id, photo.FilePath);
+            Photos.Remove(photo);
+        }
+    }
+
+    [RelayCommand]
     private async Task RenameAlbumAsync()
     {
         if (CurrentAlbum == null) return;

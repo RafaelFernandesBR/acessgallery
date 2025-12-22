@@ -32,6 +32,29 @@ public partial class PhotoGridControl : ContentView
         set => SetValue(PhotoTappedCommandProperty, value);
     }
     
+    public static readonly BindableProperty PhotoOptionsCommandProperty = BindableProperty.Create(
+        nameof(PhotoOptionsCommand),
+        typeof(ICommand),
+        typeof(PhotoGridControl));
+
+    public ICommand PhotoOptionsCommand
+    {
+        get => (ICommand)GetValue(PhotoOptionsCommandProperty);
+        set => SetValue(PhotoOptionsCommandProperty, value);
+    }
+    
+    public static readonly BindableProperty ShowOptionsButtonProperty = BindableProperty.Create(
+        nameof(ShowOptionsButton),
+        typeof(bool),
+        typeof(PhotoGridControl),
+        false);
+
+    public bool ShowOptionsButton
+    {
+        get => (bool)GetValue(ShowOptionsButtonProperty);
+        set => SetValue(ShowOptionsButtonProperty, value);
+    }
+    
     public static readonly BindableProperty ShowEmptyViewProperty = BindableProperty.Create(
         nameof(ShowEmptyView),
         typeof(bool),

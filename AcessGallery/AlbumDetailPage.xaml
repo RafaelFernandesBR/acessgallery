@@ -21,6 +21,8 @@
     <Grid>
         <controls:PhotoGridControl Photos="{Binding Photos}"
                                    PhotoTappedCommand="{Binding NavigateToPhotoDetailCommand}"
+                                   PhotoOptionsCommand="{Binding RemovePhotoCommand}"
+                                   ShowOptionsButton="True"
                                    ShowEmptyView="True" />
     </Grid>
 </ContentPage>

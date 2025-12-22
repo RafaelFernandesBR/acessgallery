@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:vm="clr-namespace:AcessGallery.ViewModels"
              x:Class="AcessGallery.Views.Controls.PhotoGridControl"
              x:Name="this">
 
     <CollectionView ItemsSource="{Binding Photos, Source={x:Reference this}}"
-                    SelectionMode="Single"
-                    SelectionChanged="OnSelectionChanged"
+                    SelectionMode="None"
                     AutomationProperties.Name="Lista de fotos">
 
         <CollectionView.ItemsLayout>
@@ -34,7 +34,27 @@
                                HeightRequest="120"
                                AutomationProperties.IsInAccessibleTree="True"
                                AutomationProperties.Name="{Binding AccessiblityHint}"
-                               AutomationProperties.HelpText="Toque duas vezes para abrir detalhes" />
+                               AutomationProperties.HelpText="Toque duas vezes para abrir detalhes." />
+
+                        <!-- Botão de Opções (Visível apenas se solicitado) -->
+                        <Button Grid.Row="0"
+                                Text="⋮"
+                                FontSize="24"
+                                TextColor="White"
+                                BackgroundColor="#80000000"
+                                WidthRequest="40"
+                                HeightRequest="40"
+                                Padding="0"
+                                CornerRadius="20"
+                                HorizontalOptions="End"
+                                VerticalOptions="Start"
+                                Margin="5"
+                                IsVisible="{Binding ShowOptionsButton, Source={x:Reference this}}"
+                                Command="{Binding PhotoOptionsCommand, Source={x:Reference this}}"
+                                CommandParameter="{Binding .}"
+                                SemanticProperties.Description="Opções"
+                                AutomationProperties.Name="Opções"
+                                AutomationProperties.HelpText="Toque para ver mais opções" />
 
                         <!-- Indicador Visual se tem descrição -->
                         <StackLayout Grid.Row="1" BackgroundColor="Black" Padding="5">
@@ -46,9 +66,10 @@
                                    HorizontalOptions="Center" />
                         </StackLayout>
                     </Grid>
+                    
                     <Frame.GestureRecognizers>
-                         <TapGestureRecognizer Command="{Binding PhotoTappedCommand, Source={x:Reference this}}"
-                                               CommandParameter="{Binding .}" />
+                        <TapGestureRecognizer Command="{Binding PhotoTappedCommand, Source={x:Reference this}}"
+                                              CommandParameter="{Binding .}" />
                     </Frame.GestureRecognizers>
                 </Frame>
             </DataTemplate>

@@ -1,4 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using AcessGallery.Services;
+using AcessGallery.ViewModels;
+using AcessGallery.Views;
+using CommunityToolkit.Maui;
 
 namespace AcessGallery;
 
@@ -9,6 +13,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

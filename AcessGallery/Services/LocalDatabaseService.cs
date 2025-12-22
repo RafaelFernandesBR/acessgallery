@@ -236,7 +236,6 @@ public class LocalDatabaseService
 
             File.Copy(backupFilePath, dbPath, true);
 
-            // Re-inicializa
             await InitAsync();
             return true;
         }
