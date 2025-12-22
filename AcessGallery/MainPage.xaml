@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:AcessGallery.ViewModels"
+             xmlns:controls="clr-namespace:AcessGallery.Views.Controls"
              x:Class="AcessGallery.MainPage"
              Title="Galeria Acessível">
 
@@ -17,50 +18,10 @@
                AutomationProperties.IsInAccessibleTree="True" 
                Margin="0,0,0,10"/>
 
-        <CollectionView Grid.Row="1" 
-                        ItemsSource="{Binding Photos}"
-                        SelectionMode="Single"
-                        SelectionChangedCommand="{Binding NavigateToDetailCommand}"
-                        SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}"
-                        AutomationProperties.Name="Lista de fotos">
-            
-            <CollectionView.ItemsLayout>
-                <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
-            </CollectionView.ItemsLayout>
-
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame Padding="0" CornerRadius="5" HasShadow="True" BorderColor="Gray">
-                        <Grid RowDefinitions="*, Auto" HeightRequest="160">
-                            
-                            <!-- Imagem -->
-                            <Image Grid.Row="0" 
-                                   Source="{Binding FilePath}" 
-                                   Aspect="AspectFill"
-                                   HeightRequest="120"
-                                   AutomationProperties.IsInAccessibleTree="True"
-                                   AutomationProperties.Name="{Binding AccessiblityHint}"
-                                   AutomationProperties.HelpText="Toque duas vezes para abrir detalhes" />
-
-                            <!-- Indicador Visual se tem descrição -->
-                            <StackLayout Grid.Row="1" BackgroundColor="Black" Padding="5">
-                                <Label Text="{Binding AccessiblityHint}" 
-                                       TextColor="White"
-                                       FontSize="Small"
-                                       LineBreakMode="TailTruncation"
-                                       MaxLines="1"
-                                       HorizontalOptions="Center" />
-                            </StackLayout>
-                        </Grid>
-                        <Frame.GestureRecognizers>
-                            <!-- Adicional para garantir toque em alguns leitores se a seleção de lista falhar -->
-                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=NavigateToDetailCommand}"
-                                                  CommandParameter="{Binding .}" />
-                        </Frame.GestureRecognizers>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <controls:PhotoGridControl Grid.Row="1"
+                                   Photos="{Binding Photos}"
+                                   PhotoTappedCommand="{Binding NavigateToDetailCommand}"
+                                   ShowEmptyView="True" />
         
         <!-- Loading Indicator -->
         <ActivityIndicator Grid.Row="1"

@@ -139,6 +139,12 @@ public class LocalDatabaseService
         await _database.DeleteAsync(album);
     }
 
+    public async Task UpdateAlbumAsync(Album album)
+    {
+        await InitAsync();
+        await _database!.UpdateAsync(album);
+    }
+
     public async Task AddPhotoToAlbumAsync(int albumId, string filePath)
     {
         await InitAsync();

@@ -55,7 +55,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
                 var desc = await _dbService.GetDescriptionAsync(ap.FilePath);
                 var hasDesc = desc != null && !string.IsNullOrWhiteSpace(desc.Description);
-                string hint = desc?.Description ?? "Foto sem descrição";
+                string hint = desc?.Description ?? AcessGallery.Helpers.PathHelper.ExtractFileName(ap.FilePath);
 
                 var item = new PhotoItemViewModel
                 {
@@ -96,6 +96,21 @@ public partial class AlbumDetailViewModel : ObservableObject
         catch (Exception ex)
         {
             await Shell.Current.DisplayAlertAsync("Erro", $"Não foi possível selecionar a foto: {ex.Message}", "OK");
+        }
+    }
+
+    [RelayCommand]
+    private async Task RenameAlbumAsync()
+    {
+        if (CurrentAlbum == null) return;
+
+        string result = await Shell.Current.DisplayPromptAsync("Renomear Álbum", "Digite o novo nome do álbum:", initialValue: CurrentAlbum.Name);
+
+        if (!string.IsNullOrWhiteSpace(result))
+        {
+            CurrentAlbum.Name = result.Trim();
+            await _dbService.UpdateAlbumAsync(CurrentAlbum);
+            Title = CurrentAlbum.Name; // Update observable property
         }
     }
 

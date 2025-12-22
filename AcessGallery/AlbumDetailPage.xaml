@@ -2,11 +2,16 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:AcessGallery.ViewModels"
+             xmlns:controls="clr-namespace:AcessGallery.Views.Controls"
              x:Class="AcessGallery.AlbumDetailPage"
              Title="{Binding Title}"
              SemanticProperties.Description="Detalhes do álbum e lista de fotos">
 
     <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Renomear"
+                     Command="{Binding RenameAlbumCommand}"
+                     Order="Secondary"
+                     SemanticProperties.Hint="Renomear este álbum" />
         <ToolbarItem Text="Adicionar Foto" 
                      Command="{Binding AddPhotoCommand}" 
                      Order="Primary" 
@@ -14,38 +19,8 @@
     </ContentPage.ToolbarItems>
 
     <Grid>
-        <CollectionView ItemsSource="{Binding Photos}"
-                        SelectionMode="None">
-            <CollectionView.ItemsLayout>
-                <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="5" VerticalItemSpacing="5"/>
-            </CollectionView.ItemsLayout>
-            <CollectionView.EmptyView>
-                <Label Text="Este álbum está vazio. Adicione fotos!"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center" 
-                       FontSize="18"/>
-            </CollectionView.EmptyView>
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <StackLayout Padding="5">
-                        <Frame Padding="0" CornerRadius="5" IsClippedToBounds="True">
-                             <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlbumDetailViewModel}}, Path=NavigateToPhotoDetailCommand}"
-                                                      CommandParameter="{Binding .}" />
-                            </Frame.GestureRecognizers>
-                            <Image Source="{Binding FilePath}" 
-                                   Aspect="AspectFill" 
-                                   HeightRequest="150" 
-                                   WidthRequest="150"
-                                   SemanticProperties.Description="{Binding AccessiblityHint}"/>
-                        </Frame>
-                        <Label Text="{Binding AccessiblityHint}" 
-                               LineBreakMode="TailTruncation"
-                               FontSize="12"
-                               HorizontalOptions="Center"/>
-                    </StackLayout>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <controls:PhotoGridControl Photos="{Binding Photos}"
+                                   PhotoTappedCommand="{Binding NavigateToPhotoDetailCommand}"
+                                   ShowEmptyView="True" />
     </Grid>
 </ContentPage>

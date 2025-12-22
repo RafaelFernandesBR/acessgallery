@@ -39,7 +39,7 @@ public partial class MainViewModel : ObservableObject
             {
                 var desc = await _dbService.GetDescriptionAsync(path);
                 var hasDesc = desc != null && !string.IsNullOrWhiteSpace(desc.Description);
-                var hint = desc?.Description ?? ExtractFileName(path);
+                var hint = desc?.Description ?? AcessGallery.Helpers.PathHelper.ExtractFileName(path);
 
                 Photos.Add(new PhotoItemViewModel 
                 { 
@@ -71,18 +71,6 @@ public partial class MainViewModel : ObservableObject
         
         await Shell.Current.GoToAsync("PhotoDetailPage", navigationParameter);
         }
-
-    private static string ExtractFileName(string path)
-    {
-        if (string.IsNullOrEmpty(path))
-            return "";
-
-        var lastSlash = Math.Max(path.LastIndexOf('/'), path.LastIndexOf('\\'));
-        if (lastSlash >= 0 && lastSlash + 1 < path.Length)
-            return path.Substring(lastSlash + 1);
-
-        return path;
-    }
 
 }
 
