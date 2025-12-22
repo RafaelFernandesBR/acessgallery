@@ -6,18 +6,16 @@
              Title="Detalhes da Foto">
 
 
-        <Grid RowDefinitions="Auto, *">
-                <!-- Top bar com botão de compartilhar (canto esquerdo) -->
-                <Grid Grid.Row="0" Padding="10">
-                        <Button Text="Compartilhar"
-                                        Command="{Binding ShareCommand}"
-                                        HorizontalOptions="End"
-                                        VerticalOptions="Center"
-                                        AutomationProperties.Name="Compartilhar foto" />
-                </Grid>
+        <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Opções"
+                     Command="{Binding MoreOptionsCommand}"
+                     Order="Primary"
+                     SemanticProperties.Hint="Opções adicionais da foto, como compartilhar ou adicionar a álbum" />
+    </ContentPage.ToolbarItems>
 
-                <ScrollView Grid.Row="1">
-                        <VerticalStackLayout Spacing="20" Padding="15">
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Spacing="20" Padding="15">
             
             <!-- Imagem Ampliada -->
             <Image Source="{Binding DisplayImage}" 
@@ -63,6 +61,6 @@
 
                         </VerticalStackLayout>
                 </ScrollView>
-        </Grid>
+    </Grid>
 
 </ContentPage>

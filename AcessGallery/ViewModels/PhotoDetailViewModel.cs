@@ -75,14 +75,26 @@ public partial class PhotoDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    [Obsolete]
+    private async Task MoreOptionsAsync()
+    {
+        var action = await Shell.Current.DisplayActionSheetAsync("Opções da Foto", "Cancelar", null, "Compartilhar", "Adicionar a Álbum");
+
+        if (action == "Compartilhar")
+        {
+            await ShareAsync();
+        }
+        else if (action == "Adicionar a Álbum")
+        {
+            await AddToAlbumAsync();
+        }
+    }
+
     private async Task ShareAsync()
     {
         if (string.IsNullOrEmpty(PhotoPath)) return;
 
         try
         {
-            // Se for um caminho de arquivo local, compartilha como arquivo
             if (System.IO.File.Exists(PhotoPath))
             {
                 var shareFile = new ShareFile(PhotoPath);
@@ -96,12 +108,44 @@ public partial class PhotoDetailViewModel : ObservableObject
                 return;
             }
 
-            // Não compartilhar caminhos que não sejam arquivos locais: informar erro ao usuário
             await Shell.Current.DisplayAlertAsync("Erro", "Não é possível compartilhar: caminho não é um arquivo local válido.", "OK");
         }
         catch (Exception ex)
         {
             await Shell.Current.DisplayAlertAsync("Erro", "Não foi possível compartilhar a foto: " + ex.Message, "OK");
+        }
+    }
+
+    private async Task AddToAlbumAsync()
+    {
+        try
+        {
+            var albums = await _dbService.GetAlbumsAsync();
+            if (albums == null || !albums.Any())
+            {
+                await Shell.Current.DisplayAlertAsync("Aviso", "Você ainda não tem álbuns criados.", "OK");
+                return;
+            }
+
+            // Simple selection using ActionSheet for now
+            var albumNames = albums.Select(a => a.Name).ToArray();
+            var result = await Shell.Current.DisplayActionSheetAsync("Selecione o Álbum", "Cancelar", null, albumNames);
+
+            if (result != null && result != "Cancelar")
+            {
+                var selectedAlbum = albums.FirstOrDefault(a => a.Name == result);
+                if (selectedAlbum != null)
+                {
+                    if (string.IsNullOrEmpty(PhotoPath)) return;
+                    
+                    await _dbService.AddPhotoToAlbumAsync(selectedAlbum.Id, PhotoPath);
+                    await Shell.Current.DisplayAlertAsync("Sucesso", $"Foto adicionada ao álbum '{selectedAlbum.Name}'", "OK");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+             await Shell.Current.DisplayAlertAsync("Erro", $"Erro ao adicionar foto ao álbum: {ex.Message}", "OK");
         }
     }
 }
