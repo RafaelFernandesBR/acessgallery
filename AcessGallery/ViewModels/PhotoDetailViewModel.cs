@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using AcessGallery.Services;
 using AcessGallery.Models;
 using Microsoft.Maui.ApplicationModel;
+using AcessGallery.Gateways;
 
 namespace AcessGallery.ViewModels;
 
@@ -10,10 +11,12 @@ namespace AcessGallery.ViewModels;
 public partial class PhotoDetailViewModel : ObservableObject
 {
     private readonly LocalDatabaseService _dbService;
+    private readonly IGeminiService _geminiService;
     
-    public PhotoDetailViewModel(LocalDatabaseService dbService)
+    public PhotoDetailViewModel(LocalDatabaseService dbService, IGeminiService geminiService)
     {
         _dbService = dbService;
+        _geminiService = geminiService;
     }
 
     [ObservableProperty]
@@ -24,6 +27,9 @@ public partial class PhotoDetailViewModel : ObservableObject
 
     [ObservableProperty]
     private ImageSource _displayImage;
+
+    [ObservableProperty]
+    private bool _isBusy;
 
     partial void OnPhotoPathChanged(string value)
     {
@@ -77,7 +83,7 @@ public partial class PhotoDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task MoreOptionsAsync()
     {
-        var action = await Shell.Current.DisplayActionSheetAsync("Opções da Foto", "Cancelar", null, "Compartilhar", "Adicionar a Álbum");
+        var action = await Shell.Current.DisplayActionSheetAsync("Opções da Foto", "Cancelar", null, "Compartilhar", "Adicionar a Álbum", "Descrever com IA");
 
         if (action == "Compartilhar")
         {
@@ -86,6 +92,82 @@ public partial class PhotoDetailViewModel : ObservableObject
         else if (action == "Adicionar a Álbum")
         {
             await AddToAlbumAsync();
+        }
+        else if (action == "Descrever com IA")
+        {
+            await DescribeImageWithAiAsync();
+        }
+    }
+
+    private async Task DescribeImageWithAiAsync()
+    {
+        if (string.IsNullOrEmpty(PhotoPath)) return;
+        if (IsBusy) return;
+
+        IsBusy = true;
+        try
+        {
+             byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(PhotoPath);
+             string base64Image = Convert.ToBase64String(imageBytes);
+
+             // Assumindo JPEG por padrão para fotos de câmera, mas poderia ser melhorado
+             string mimeType = "image/jpeg"; 
+             if (PhotoPath.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) mimeType = "image/png";
+
+             // Idioma fixo em português por enquanto
+             var response = await _geminiService.GenerateDescriptionAsync(base64Image, mimeType, "pt-BR");
+             
+             if (response != null && response.Candidates != null && response.Candidates.Any())
+             {
+                 var text = response.Candidates.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+                 if (!string.IsNullOrEmpty(text))
+                 {
+                     // O Gemini retorna um JSON porque configuramos ResponseMimeType = "application/json"
+                     try 
+                     {
+                        // Deserialização Case-Insensitive para garantir compatibilidade
+                        var options = new System.Text.Json.JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        };
+
+                        var descriptionObj = System.Text.Json.JsonSerializer.Deserialize<AcessGallery.Models.ApiResponce.GeminiDescriptionResponse>(text, options);
+                        
+                        if (descriptionObj != null && !string.IsNullOrWhiteSpace(descriptionObj.Description))
+                        {
+                            Description = descriptionObj.Description;
+                        }
+                        else
+                        {
+                            // Fallback caso o JSON venha vazio ou estrutura diferente
+                            Description = text;
+                        }
+                     }
+                     catch
+                     {
+                         // Se falhar o parse, usa o texto puro (fallback)
+                         Description = text;
+                     }
+                     
+                     SemanticScreenReader.Announce("Descrição gerada pela inteligência artificial.");
+                 }
+                 else
+                 {
+                     await Shell.Current.DisplayAlertAsync("Aviso", "A IA não retornou nenhuma descrição.", "OK");
+                 }
+             }
+             else
+             {
+                 await Shell.Current.DisplayAlertAsync("Erro", "Falha ao obter resposta da IA.", "OK");
+             }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlertAsync("Erro", $"Falha ao gerar descrição: {ex.Message}", "OK");
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 

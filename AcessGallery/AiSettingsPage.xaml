@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AcessGallery.ViewModels"
+             x:Class="AcessGallery.AiSettingsPage"
+             Title="Configurações de IA">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+             <Label Text="Insira sua Chave de API do Gemini para habilitar as descrições automáticas de imagens. A chave é salva de forma segura no seu dispositivo." 
+                   FontSize="16" 
+                   TextColor="{AppThemeBinding Light=Gray, Dark=LightGray}"/>
+
+            <Entry Placeholder="Cole sua API Key aqui"
+                   Text="{Binding ApiKey}"
+                   IsPassword="True"
+                   AutomationProperties.Name="Campo para inserir a chave de API do Gemini"
+                   AutomationProperties.HelpText="Insira aqui a chave da API do Google Gemini"/>
+
+            <Button Text="Salvar Chave de API" 
+                    Command="{Binding SaveApiKeyCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    HeightRequest="50"
+                    FontAttributes="Bold"
+                    SemanticProperties.Hint="Salva a chave de API inserida"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

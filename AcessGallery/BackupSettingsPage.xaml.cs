@@ -2,13 +2,11 @@ using AcessGallery.ViewModels;
 
 namespace AcessGallery;
 
-public partial class SettingsPage : ContentPage
+public partial class BackupSettingsPage : ContentPage
 {
-	public SettingsPage(SettingsViewModel viewModel)
+	public BackupSettingsPage(BackupSettingsViewModel viewModel)
 	{
 		InitializeComponent();
 		BindingContext = viewModel;
 	}
-
-
 }
