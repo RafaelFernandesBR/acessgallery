@@ -13,7 +13,7 @@ public partial class PhotoDetailViewModel : ObservableObject
 {
     private readonly LocalDatabaseService _dbService;
     private readonly IGeminiService _geminiService;
-    
+
     public PhotoDetailViewModel(LocalDatabaseService dbService, IGeminiService geminiService)
     {
         _dbService = dbService;
@@ -66,10 +66,10 @@ public partial class PhotoDetailViewModel : ObservableObject
         };
 
         await _dbService.SaveDescriptionAsync(photoDesc);
-        
+
         // Feedback acessível
         await Shell.Current.DisplayAlertAsync("Sucesso", "Descrição salva com sucesso", "OK");
-        
+
         // Poderíamos usar SemanticScreenReader para anunciar também
         SemanticScreenReader.Announce("Descrição salva com sucesso");
     }
@@ -107,52 +107,45 @@ public partial class PhotoDetailViewModel : ObservableObject
         IsBusy = true;
         try
         {
-             byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(PhotoPath);
-             string base64Image = Convert.ToBase64String(imageBytes);
+            byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(PhotoPath);
+            string base64Image = Convert.ToBase64String(imageBytes);
 
-             // Assumindo JPEG por padrão para fotos de câmera, mas poderia ser melhorado
-             string mimeType = "image/jpeg"; 
-             if (PhotoPath.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) mimeType = "image/png";
+            // Tenta detectar pelo magic number (prefixo do base64)
+            var matchedType = Constantes.Types.FirstOrDefault(t => base64Image.StartsWith(t.Key));
+            string mimeType = matchedType.Value ?? "image/jpeg";
 
-             // Idioma fixo em português por enquanto
-             // Idioma fixo em português por enquanto
-             var response = await _geminiService.GenerateDescriptionAsync(base64Image, mimeType, "pt-BR");
-             
-             if (response == null || response.Candidates == null || !response.Candidates.Any())
-             {
-                 await Shell.Current.DisplayAlertAsync("Erro", "Falha ao obter resposta da IA.", "OK");
-                 return;
-             }
+            var language = System.Globalization.CultureInfo.CurrentUICulture.Name;
+            var response = await _geminiService.GenerateDescriptionAsync(base64Image, mimeType, language);
 
-             var text = response.Candidates.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
-             if (string.IsNullOrEmpty(text))
-             {
-                 await Shell.Current.DisplayAlertAsync("Aviso", "A IA não retornou nenhuma descrição.", "OK");
-                 return;
-             }
+            if (response == null || response.Candidates == null || !response.Candidates.Any())
+            {
+                await Shell.Current.DisplayAlertAsync("Erro", "Falha ao obter resposta da IA.", "OK");
+                return;
+            }
 
-             // O Gemini retorna um JSON porque configuramos ResponseMimeType = "application/json"
-             try 
-             {
+            var text = response.Candidates.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+            if (string.IsNullOrEmpty(text))
+            {
+                await Shell.Current.DisplayAlertAsync("Aviso", "A IA não retornou nenhuma descrição.", "OK");
+                return;
+            }
+
+            try
+            {
                 var descriptionObj = System.Text.Json.JsonSerializer.Deserialize<GeminiDescriptionResponse>(text);
-                
+
                 if (descriptionObj != null && !string.IsNullOrWhiteSpace(descriptionObj.Description))
                 {
                     Description = descriptionObj.Description;
                 }
-                else
-                {
-                    // Fallback caso o JSON venha vazio ou estrutura diferente
-                    Description = text;
-                }
-             }
-             catch
-             {
-                 // Se falhar o parse, usa o texto puro (fallback)
-                 Description = text;
-             }
-             
-             SemanticScreenReader.Announce("Descrição gerada pela inteligência artificial.");
+            }
+            catch
+            {
+                // Se falhar o parse, usa o texto puro (fallback)
+                Description = text;
+            }
+
+            SemanticScreenReader.Announce("Descrição gerada pela inteligência artificial.");
         }
         catch (Exception ex)
         {
@@ -212,7 +205,7 @@ public partial class PhotoDetailViewModel : ObservableObject
                 if (selectedAlbum != null)
                 {
                     if (string.IsNullOrEmpty(PhotoPath)) return;
-                    
+
                     await _dbService.AddPhotoToAlbumAsync(selectedAlbum.Id, PhotoPath);
                     await Shell.Current.DisplayAlertAsync("Sucesso", $"Foto adicionada ao álbum '{selectedAlbum.Name}'", "OK");
                 }
@@ -220,7 +213,7 @@ public partial class PhotoDetailViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-             await Shell.Current.DisplayAlertAsync("Erro", $"Erro ao adicionar foto ao álbum: {ex.Message}", "OK");
+            await Shell.Current.DisplayAlertAsync("Erro", $"Erro ao adicionar foto ao álbum: {ex.Message}", "OK");
         }
     }
 }

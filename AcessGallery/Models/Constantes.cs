@@ -26,4 +26,12 @@ Description examples (follow exactly this format):
 
 Now, describe the provided image following exactly the pattern above.
 ";
+    public static readonly Dictionary<string, string> Types = new()
+    {
+        { "iVBOR", "image/png" },
+        { "/9j/", "image/jpeg" },
+        { "UklGR", "image/webp" },
+        { "AAAB", "image/heic" },
+        { "mif1", "image/heif" }
+    };
 }
