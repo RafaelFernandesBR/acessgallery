@@ -4,6 +4,7 @@ using AcessGallery.Services;
 using AcessGallery.Models;
 using Microsoft.Maui.ApplicationModel;
 using AcessGallery.Gateways;
+using AcessGallery.Models.ApiResponce;
 
 namespace AcessGallery.ViewModels;
 
@@ -126,12 +127,8 @@ public partial class PhotoDetailViewModel : ObservableObject
                      try 
                      {
                         // Deserialização Case-Insensitive para garantir compatibilidade
-                        var options = new System.Text.Json.JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        };
 
-                        var descriptionObj = System.Text.Json.JsonSerializer.Deserialize<AcessGallery.Models.ApiResponce.GeminiDescriptionResponse>(text, options);
+                        var descriptionObj = System.Text.Json.JsonSerializer.Deserialize<GeminiDescriptionResponse>(text);
                         
                         if (descriptionObj != null && !string.IsNullOrWhiteSpace(descriptionObj.Description))
                         {
