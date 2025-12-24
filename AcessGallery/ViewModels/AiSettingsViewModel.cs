@@ -20,11 +20,10 @@ public partial class AiSettingsViewModel : ObservableObject
         {
             SecureStorage.Default.Remove("GEMINI_API_KEY");
             await Shell.Current.DisplayAlertAsync("Sucesso", "Chave de API removida.", "OK");
+            return;
         }
-        else
-        {
-            await SecureStorage.Default.SetAsync("GEMINI_API_KEY", ApiKey);
-            await Shell.Current.DisplayAlertAsync("Sucesso", "Chave de API salva com sucesso.", "OK");
-        }
+
+        await SecureStorage.Default.SetAsync("GEMINI_API_KEY", ApiKey);
+        await Shell.Current.DisplayAlertAsync("Sucesso", "Chave de API salva com sucesso.", "OK");
     }
 }

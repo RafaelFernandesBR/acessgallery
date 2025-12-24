@@ -29,25 +29,22 @@ public partial class BackupSettingsViewModel : ObservableObject
                 PickerTitle = "Selecione o arquivo de backup (.db3)"
             });
 
-            if (result != null)
+            if (result == null) return;
+            
+            if (!result.FileName.EndsWith(".db3", StringComparison.OrdinalIgnoreCase))
             {
-                if (result.FileName.EndsWith(".db3", StringComparison.OrdinalIgnoreCase))
-                {
-                    bool success = await _dbService.RestoreDatabaseAsync(result.FullPath);
-                    if (success)
-                    {
-                        await Shell.Current.DisplayAlertAsync("Sucesso", "Backup restaurado com sucesso. Todos os seus dados (álbuns, descrições, etc.) foram atualizados.", "OK");
-                    }
-                    else
-                    {
-                        await Shell.Current.DisplayAlertAsync("Erro", "Falha ao restaurar o backup.", "OK");
-                    }
-                }
-                else
-                {
-                    await Shell.Current.DisplayAlertAsync("Arquivo Inválido", "Por favor selecione um arquivo válido (.db3).", "OK");
-                }
+                await Shell.Current.DisplayAlertAsync("Arquivo Inválido", "Por favor selecione um arquivo válido (.db3).", "OK");
+                return;
             }
+
+            bool success = await _dbService.RestoreDatabaseAsync(result.FullPath);
+            if (!success)
+            {
+                await Shell.Current.DisplayAlertAsync("Erro", "Falha ao restaurar o backup.", "OK");
+                return;
+            }
+
+            await Shell.Current.DisplayAlertAsync("Sucesso", "Backup restaurado com sucesso. Todos os seus dados (álbuns, descrições, etc.) foram atualizados.", "OK");
         }
         catch (Exception ex)
         {

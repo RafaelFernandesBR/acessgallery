@@ -47,11 +47,10 @@ public partial class PhotoDetailViewModel : ObservableObject
         if (existing != null)
         {
             Description = existing.Description;
+            return;
         }
-        else
-        {
-            Description = string.Empty;
-        }
+
+        Description = string.Empty;
     }
 
     [RelayCommand]
@@ -86,17 +85,17 @@ public partial class PhotoDetailViewModel : ObservableObject
     {
         var action = await Shell.Current.DisplayActionSheetAsync("Opções da Foto", "Cancelar", null, "Compartilhar", "Adicionar a Álbum", "Descrever com IA");
 
-        if (action == "Compartilhar")
+        switch (action)
         {
-            await ShareAsync();
-        }
-        else if (action == "Adicionar a Álbum")
-        {
-            await AddToAlbumAsync();
-        }
-        else if (action == "Descrever com IA")
-        {
-            await DescribeImageWithAiAsync();
+            case "Compartilhar":
+                await ShareAsync();
+                break;
+            case "Adicionar a Álbum":
+                await AddToAlbumAsync();
+                break;
+            case "Descrever com IA":
+                await DescribeImageWithAiAsync();
+                break;
         }
     }
 
@@ -116,47 +115,44 @@ public partial class PhotoDetailViewModel : ObservableObject
              if (PhotoPath.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) mimeType = "image/png";
 
              // Idioma fixo em português por enquanto
+             // Idioma fixo em português por enquanto
              var response = await _geminiService.GenerateDescriptionAsync(base64Image, mimeType, "pt-BR");
              
-             if (response != null && response.Candidates != null && response.Candidates.Any())
-             {
-                 var text = response.Candidates.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
-                 if (!string.IsNullOrEmpty(text))
-                 {
-                     // O Gemini retorna um JSON porque configuramos ResponseMimeType = "application/json"
-                     try 
-                     {
-                        // Deserialização Case-Insensitive para garantir compatibilidade
-
-                        var descriptionObj = System.Text.Json.JsonSerializer.Deserialize<GeminiDescriptionResponse>(text);
-                        
-                        if (descriptionObj != null && !string.IsNullOrWhiteSpace(descriptionObj.Description))
-                        {
-                            Description = descriptionObj.Description;
-                        }
-                        else
-                        {
-                            // Fallback caso o JSON venha vazio ou estrutura diferente
-                            Description = text;
-                        }
-                     }
-                     catch
-                     {
-                         // Se falhar o parse, usa o texto puro (fallback)
-                         Description = text;
-                     }
-                     
-                     SemanticScreenReader.Announce("Descrição gerada pela inteligência artificial.");
-                 }
-                 else
-                 {
-                     await Shell.Current.DisplayAlertAsync("Aviso", "A IA não retornou nenhuma descrição.", "OK");
-                 }
-             }
-             else
+             if (response == null || response.Candidates == null || !response.Candidates.Any())
              {
                  await Shell.Current.DisplayAlertAsync("Erro", "Falha ao obter resposta da IA.", "OK");
+                 return;
              }
+
+             var text = response.Candidates.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+             if (string.IsNullOrEmpty(text))
+             {
+                 await Shell.Current.DisplayAlertAsync("Aviso", "A IA não retornou nenhuma descrição.", "OK");
+                 return;
+             }
+
+             // O Gemini retorna um JSON porque configuramos ResponseMimeType = "application/json"
+             try 
+             {
+                var descriptionObj = System.Text.Json.JsonSerializer.Deserialize<GeminiDescriptionResponse>(text);
+                
+                if (descriptionObj != null && !string.IsNullOrWhiteSpace(descriptionObj.Description))
+                {
+                    Description = descriptionObj.Description;
+                }
+                else
+                {
+                    // Fallback caso o JSON venha vazio ou estrutura diferente
+                    Description = text;
+                }
+             }
+             catch
+             {
+                 // Se falhar o parse, usa o texto puro (fallback)
+                 Description = text;
+             }
+             
+             SemanticScreenReader.Announce("Descrição gerada pela inteligência artificial.");
         }
         catch (Exception ex)
         {

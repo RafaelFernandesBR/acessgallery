@@ -90,12 +90,11 @@ public class LocalDatabaseService
             existing.FilePath = item.FilePath;
             existing.Hash = item.Hash;
             await _database!.UpdateAsync(existing);
+            return;
         }
-        else
-        {
-            item.LastModified = DateTime.Now;
-            await _database!.InsertAsync(item);
-        }
+
+        item.LastModified = DateTime.Now;
+        await _database!.InsertAsync(item);
     }
     
     /// <summary>
