@@ -110,7 +110,6 @@ public partial class PhotoDetailViewModel : ObservableObject
             byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(PhotoPath);
             string base64Image = Convert.ToBase64String(imageBytes);
 
-            // Tenta detectar pelo magic number (prefixo do base64)
             var matchedType = Constantes.Types.FirstOrDefault(t => base64Image.StartsWith(t.Key));
             string mimeType = matchedType.Value ?? "image/jpeg";
 
@@ -130,19 +129,10 @@ public partial class PhotoDetailViewModel : ObservableObject
                 return;
             }
 
-            try
+            var descriptionObj = System.Text.Json.JsonSerializer.Deserialize<GeminiDescriptionResponse>(text);
+            if (descriptionObj != null && !string.IsNullOrWhiteSpace(descriptionObj.Description))
             {
-                var descriptionObj = System.Text.Json.JsonSerializer.Deserialize<GeminiDescriptionResponse>(text);
-
-                if (descriptionObj != null && !string.IsNullOrWhiteSpace(descriptionObj.Description))
-                {
-                    Description = descriptionObj.Description;
-                }
-            }
-            catch
-            {
-                // Se falhar o parse, usa o texto puro (fallback)
-                Description = text;
+                Description = descriptionObj.Description;
             }
 
             SemanticScreenReader.Announce("Descrição gerada pela inteligência artificial.");
