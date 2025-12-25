@@ -5,6 +5,7 @@ using AcessGallery.Models;
 using Microsoft.Maui.ApplicationModel;
 using AcessGallery.Gateways;
 using AcessGallery.Models.ApiResponce;
+using System.Text.Json;
 
 namespace AcessGallery.ViewModels;
 
@@ -129,7 +130,7 @@ public partial class PhotoDetailViewModel : ObservableObject
                 return;
             }
 
-            var descriptionObj = System.Text.Json.JsonSerializer.Deserialize<GeminiDescriptionResponse>(text);
+            var descriptionObj = JsonSerializer.Deserialize<GeminiDescriptionResponse>(text);
             if (descriptionObj != null && !string.IsNullOrWhiteSpace(descriptionObj.Description))
             {
                 Description = descriptionObj.Description;
