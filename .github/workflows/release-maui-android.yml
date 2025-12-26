@@ -1,0 +1,75 @@
+name: Release MAUI Android
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'  # Ajuste para sua versão .NET
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install MAUI Workload
+      run: dotnet workload install maui android --source https://api.nuget.org/v3/index.json
+      
+    - name: Restore Dependencies
+      run: dotnet restore
+      
+    - name: Create Keystore
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      run: |
+        echo $KEYSTORE_BASE64 | base64 -di > keystore.jks
+        ls -la keystore.jks
+        
+    - name: Build and Sign APK
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      run: |
+        dotnet publish ./AcessGallery/AcessGallery.csproj \
+          -f:net10.0-android -c:Release \
+          -p:AndroidPackageFormats=apk \
+          -p:AndroidKeyStore=true \
+          -p:AndroidSigningKeyStore=keystore.jks \
+          -p:AndroidSigningStorePass="$KEYSTORE_PASSWORD" \
+          -p:AndroidSigningKeyAlias="$KEY_ALIAS" \
+          -p:AndroidSigningKeyPass="$KEY_PASSWORD" \
+          --no-restore \
+          -p:UseApkSigningV2=true \
+          -p:AndroidUseApkAdditionalFeatures=false
+        
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload APK to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./bin/Release/net10.0-android/publish/com.RafaelFernandes.acessgallery-Signed.apk
+        asset_name: com.RafaelFernandes.acessgallery-Signed.apk
+        asset_content_type: application/vnd.android.package-archive
