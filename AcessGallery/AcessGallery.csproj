@@ -11,7 +11,7 @@
 		<ApplicationTitle>AcessGallery</ApplicationTitle>
 		<ApplicationId>com.RafaelFernandes.acessgallery</ApplicationId>
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationVersion>3</ApplicationVersion>
 		<WindowsPackageType>None</WindowsPackageType>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
