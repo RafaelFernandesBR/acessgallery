@@ -33,8 +33,9 @@ jobs:
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: |
-        echo $KEYSTORE_BASE64 | base64 -di > keystore.jks
-        ls -la keystore.jks
+        if [ -z "$KEYSTORE_BASE64" ]; then echo "ERROR: KEYSTORE_BASE64 is empty"; exit 1; fi
+        echo "$KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/keystore.jks"
+        ls -la "$GITHUB_WORKSPACE/keystore.jks"
         
     - name: Build and Sign APK
       env:
@@ -46,7 +47,7 @@ jobs:
           -f:net10.0-android -c:Release \
           -p:AndroidPackageFormats=apk \
           -p:AndroidKeyStore=true \
-          -p:AndroidSigningKeyStore=keystore.jks \
+          -p:AndroidSigningKeyStore="$GITHUB_WORKSPACE/keystore.jks" \
           -p:AndroidSigningStorePass="$KEYSTORE_PASSWORD" \
           -p:AndroidSigningKeyAlias="$KEY_ALIAS" \
           -p:AndroidSigningKeyPass="$KEY_PASSWORD" \
