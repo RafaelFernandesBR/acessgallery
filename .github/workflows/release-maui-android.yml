@@ -44,9 +44,9 @@ jobs:
           -p:AndroidPackageFormats=apk \
           -p:AndroidKeyStore=true \
           -p:AndroidSigningKeyStore="$GITHUB_WORKSPACE/keystore.jks" \
-          -p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}" \
-          -p:AndroidSigningKeyAlias="${{ secrets.KEY_ALIAS }}" \
-          -p:AndroidSigningKeyPass="${{ secrets.KEYSTORE_PASSWORD }}" \
+          -p:AndroidSigningStorePass='${{ secrets.KEYSTORE_PASSWORD }}' \
+          -p:AndroidSigningKeyAlias='${{ secrets.KEY_ALIAS }}' \
+          -p:AndroidSigningKeyPass='${{ secrets.KEYSTORE_PASSWORD }}' \
           --no-restore \
           -p:UseApkSigningV2=true \
           -p:AndroidUseApkAdditionalFeatures=false
