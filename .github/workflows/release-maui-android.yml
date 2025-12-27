@@ -33,8 +33,8 @@ jobs:
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: |
-        if [ -z "$KEYSTORE_BASE64" ]; then echo "ERROR: KEYSTORE_BASE64 is empty"; exit 1; fi
-        echo "$KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/keystore.jks"
+        if [ -z '$KEYSTORE_BASE64' ]; then echo "ERROR: KEYSTORE_BASE64 is empty"; exit 1; fi
+        echo '${{ secrets.KEYSTORE_BASE64 }}' | base64 --decode > "$GITHUB_WORKSPACE/keystore.jks"
         ls -la "$GITHUB_WORKSPACE/keystore.jks"
         
     - name: Build and Sign APK
