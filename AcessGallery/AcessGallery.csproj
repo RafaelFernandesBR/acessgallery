@@ -10,8 +10,8 @@
 		<Nullable>enable</Nullable>
 		<ApplicationTitle>AcessGallery</ApplicationTitle>
 		<ApplicationId>com.RafaelFernandes.acessgallery</ApplicationId>
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>3</ApplicationVersion>
+		<ApplicationDisplayVersion>9.0</ApplicationDisplayVersion>
+		<ApplicationVersion>4</ApplicationVersion>
 		<WindowsPackageType>None</WindowsPackageType>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
